@@ -1,0 +1,38 @@
+.banner {
+  height: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: white;
+  color: #00a19a;
+}
+
+.banner input {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+.label {
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #00a19a;
+  cursor: pointer;
+  transition: color 0.2s cubic-bezier(0.5, 0, 0, 1);
+}
+
+.label:hover {
+  color: #008781;
+}
+
+.muted {
+  color: #AAB1AE;
+  font-size: 12px;
+}

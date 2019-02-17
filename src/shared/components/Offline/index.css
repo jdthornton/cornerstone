@@ -1,0 +1,11 @@
+.offline {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #3b9bbe;
+  text-align: center;
+  padding: 10px 0;
+  font-size: 15px;
+  color: white;
+}

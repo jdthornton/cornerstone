@@ -1,0 +1,98 @@
+
+.form {
+  flex-grow: 1;
+  display: inline-flex;
+  align-items: center;
+  margin-right: 11px;
+  margin-left: 5px;
+}
+
+.btn {
+  width: 24px;
+  height: 24px;
+  flex: 0 0 24px;
+  margin-left: 10px;
+  color: white;
+  background-color: #00a19a;
+  border-radius: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn .mobile {
+  display:inline;
+  font-size: 14px;
+  font-weight: normal;
+}
+.btn .desktop {
+  display: none;
+  font-size: 11px;
+}
+
+.btn:hover {
+  background-color: #006e69;
+}
+.inputIcon {
+  width: 22px;
+  height: 22px;
+  margin-left: -30px;
+  z-index: 50;
+}
+
+.form input {
+  padding: 5px 35px 5px 5px;
+  position: relative;
+  z-index: 2000;
+  height: 40px;
+  margin-bottom: 0;
+  border-radius: 4px;
+  font-size: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #DBDBDB;
+  width: 100%;
+}
+
+
+.input {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+}
+
+
+.input input {
+  padding: 5px 35px 5px 5px;
+  position: relative;
+  z-index: 2000;
+  height: 40px;
+  margin-bottom: 0;
+  border-radius: 4px;
+  font-size: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid #DBDBDB;
+}
+
+@media (min-width: 900px){
+  .btn {
+    width: 85px;
+    flex: 0 0 85px;
+    height: 35px;
+    margin-left: 16px;
+    border-bottom: 1px solid #006e69;
+  }
+  .btn .mobile {
+    display: none;
+  }
+  .btn .desktop {
+    display: inline;
+  }
+  .form {
+    flex: 0 0 50%;
+    margin-right: 15px;
+    margin-left: 5px;
+  }
+}

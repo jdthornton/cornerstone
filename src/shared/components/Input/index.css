@@ -1,0 +1,14 @@
+.error {
+  font-size: 11px;
+  color: #e75b52;
+}
+
+.container {
+  margin-bottom: 10px;
+}
+
+@media (min-width: 1440px){
+  .container {
+    margin-bottom: 15px;
+  }
+}

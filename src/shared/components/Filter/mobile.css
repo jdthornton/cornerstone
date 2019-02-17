@@ -1,0 +1,52 @@
+.wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.container {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  justify-content: center;
+  top: -5px;
+  left: 0;
+  right: 0;
+  height: 50px;
+  flex-direction: row;
+  padding: 5px 8px 0 8px;
+  background-color: #f3f3f3;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: -1;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.16);
+  transition: all 0.3s;
+}
+
+.open {
+  top: 50px;
+}
+.closeBtn {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  font-size: 22px;
+  display: block;
+}
+.container span {
+  font-size: 10px;
+  text-transform: uppercase;
+  color: #9c9c9c;
+  margin-right: 6px;
+}
+
+.container span:not(:nth-child(2)) {
+  margin-left: 6px;
+}
+
+.small {
+  width: 45px;
+}
+
+.container input {
+  padding: 7px;
+}
