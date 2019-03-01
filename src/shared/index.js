@@ -18,6 +18,8 @@ const Form = loadable(() => import('./containers/Form'), {
   LoadingComponent: LoadSpinner
 })
 
+import styles from './index.css';
+
 class App extends React.Component {
   previousLocation = this.props.location;
   componentWillUpdate(nextProps) {
@@ -48,7 +50,7 @@ class App extends React.Component {
           ]}
       />
       <header>
-        <Link to="/" className="logo">CORNER<br />STONE</Link>
+        <Link to="/" className={styles.logo}>CORNER<br />STONE</Link>
         <Search isMobile={this.props.isMobile} />
       </header>
       <main>

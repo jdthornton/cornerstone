@@ -8,10 +8,9 @@ const BrotliPlugin = require('brotli-webpack-plugin');
 const LoadablePlugin = require('@loadable/webpack-plugin')
 const HTMLWebpackPlugin = require('html-webpack-plugin');
 const SWPrecacheWebpackPlugin = require('sw-precache-webpack-plugin');
-const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const CONFIG_VARIABLES = require('./config');
-const OUTPUT_DIR = path.resolve(__dirname, 'dist');
+const OUTPUT_DIR = path.resolve(__dirname, '../dist');
 
 module.exports = {
 	name: 'client',
@@ -21,8 +20,8 @@ module.exports = {
 	},
 	mode: 'production',
 	output: {
-		filename: '[name].[hash].js',
-		chunkFilename: "[id].[hash].js",
+		filename: 'js/[name].[hash].js',
+		chunkFilename: "js/[id].[hash].js",
 		path: OUTPUT_DIR,
 		publicPath: '/',
 	},
@@ -61,24 +60,13 @@ module.exports = {
              }
            },
         ]
-      },
-			{
-				test: /\.(jpg|svg|png|gif)$/,
-				use: [
-					{
-						loader: 'file-loader',
-						options: {
-							name: 'images/[name].[ext]',
-						},
-					},
-				],
-			},
-		],
+      }
+		]
 	},
 	plugins: [
 		new MiniCssExtractPlugin({
-			filename: '[name].[contenthash].css',
-			chunkFilename: '[name]-[hash:8].css',
+			filename: 'css/[name].[contenthash].css',
+			chunkFilename: 'css/[name]-[hash:8].css',
     }),
 		new OptimizeCssAssetsPlugin({
 			assetNameRegExp: /\.css$/g,
@@ -89,25 +77,23 @@ module.exports = {
 		new HTMLWebpackPlugin({
 			inject: false,
 			filename: 'index.html',
-			template: 'src/client/index.ejs',
+			template: path.resolve(__dirname, '../src/client/index.ejs'),
 			minify: {
 				collapseBooleanAttributes: true,
 				removeComments: true,
-				collapseWhitespace: true,
+				collapseWhitespace: true
 			}
 		}),
 		new webpack.DefinePlugin(CONFIG_VARIABLES),
 		new CompressionPlugin({
-			algorithm: 'gzip',
+			algorithm: 'gzip'
 		}),
 		new BrotliPlugin(),
 		new LoadablePlugin(),
 		new SWPrecacheWebpackPlugin({
-			filename: 'serviceWorker.js'
-		}),
-		new CopyWebpackPlugin([
-        { from: './src/client/manifest.json' },
-				{ from: './src/client/icons' }
-    ])
-	],
+			filename: 'serviceWorker.js',
+			minify: true,
+			staticFileGlobsIgnorePatterns: [/loadable-stats\.json$/, /manifest\.json$/]
+		})
+	]
 };

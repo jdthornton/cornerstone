@@ -25,6 +25,7 @@ const PORT = 3000;
 if(process.env.NODE_ENV === 'development'){
   app.use(cors({credentials: true, origin: 'http://localhost:8080'}));
 }
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -34,7 +35,7 @@ import routes from './routes/api';
 app.use('/api/v1', routes);
 
 app.use(function(error, req, res, next){
-  console.log("ERROR STATUS", error.status);
+  console.error(error);
 });
 
 if(process.env.NODE_ENV === 'production') {

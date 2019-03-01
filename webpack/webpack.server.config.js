@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 
 const CONFIG_VARIABLES = require('./config');
-const OUTPUT_DIR = path.resolve(__dirname, 'build');
+const OUTPUT_DIR = path.resolve(__dirname, '../build');
 
 module.exports = {
 	name: 'server',

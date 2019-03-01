@@ -36,45 +36,55 @@ const uploadFile = (buffer, name, type) => {
 
 export default {
   getPublic: async (req, res) => {
-    let listing = await Listing.findById(req.params.id)
-    if(!listing) {
-      throw new Error("This listing does not exist");
-    } else {
-      res.send({"payload": listing});
+    try {
+      let listing = await Listing.findById(req.params.id)
+      if(!listing) {
+        throw new Error("This listing does not exist");
+      } else {
+        res.send({"payload": listing});
+      }
+    } catch (e) {
+      res.sendStatus(500)
     }
+
   },
 
   search: async (req, res) => {
-    var coords;
-    var payload = {};
-    if(req.query.str){
-      let { data, status } = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${req.query.str}&key=${GOOGLE_API_KEY}`)
-      if(status === 200){
-        coords = {lng: data.results[0].geometry.location.lng, lat: data.results[0].geometry.location.lat}
-        payload.coords = coords;
+    try {
+      var coords;
+      var distance = req.query.r || 10
+      var payload = {};
+      if(req.query.str){
+        let { data, status } = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${req.query.str}&key=${GOOGLE_API_KEY}`)
+        if(status === 200){
+          coords = {lng: data.results[0].geometry.location.lng, lat: data.results[0].geometry.location.lat}
+          payload.coords = coords;
+        } else {
+          throw new Error()
+        }
       } else {
-        throw new Error()
+        coords = {lng: req.query.lng, lat: req.query.lat}
       }
-    } else {
-      coords = {lng: req.query.lng, lat: req.query.lat}
+
+      payload.listings = await Listing.find({
+                                    location: {
+                                      $near: {
+                                        $geometry: {
+                                          type: "Point",
+                                          coordinates: [coords.lng, coords.lat]
+                                        },
+                                        $maxDistance: distance * 1609.34
+                                      }
+                                    }}).lean();
+
+      res.send(payload);
+    } catch (e) {
+      res.sendStatus(500)
     }
-
-    payload.listings = await Listing.find({
-                                  location: {
-                                    $near: {
-                                      $geometry: {
-                                        type: "Point",
-                                        coordinates: [coords.lng, coords.lat]
-                                      },
-                                      $maxDistance: 10 * 1609.34 //10 miles
-                                    }
-                                  }}).lean();
-
-    res.send(payload);
   },
 
   create: async (req, res) => {
-    const form = new multiparty.Form();
+      const form = new multiparty.Form();
       form.parse(req, async (error, fields, files) => {
         if (error) throw new Error(error);
         try {
@@ -109,7 +119,7 @@ export default {
           res.send({"error": "Invalid"})
         }
       } catch (error) {
-        res.send({"error": "Invalid"})
+        throw new Error(error);
       }
     })
   }
