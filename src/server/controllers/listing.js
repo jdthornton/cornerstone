@@ -105,7 +105,7 @@ export default {
         try {
           let body = JSON.parse(fields.body[0])
           const errors = checkForErrors(body);
-          if(errors) {
+          if(!errors) {
             let str = body.address+", "+body.city+", "+body.state;
             let replaced = str.replace(/\s/g, '+');
             let { data } = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${replaced}&key=${GOOGLE_API_KEY}`)
