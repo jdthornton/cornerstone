@@ -23,16 +23,31 @@ aws.config.setPromisesDependency(bluebird);
 const s3 = new aws.S3();
 
 // abstracts function to upload a file returning a promise
-const uploadFile = (buffer, name, type) => {
+const uploadFile = (buffer, name) => {
   const params = {
     ACL: 'public-read',
     Body: buffer,
     Bucket: 'cornerstoneapp',
     ContentType: type.mime,
-    Key: `${name}.png`
+    Key: name
   };
   return s3.upload(params).promise();
 };
+
+const checkForErrors = (listing) => {
+  let errors = {}
+  if(!listing.headline) errors.headline = true;
+  if(!listing.description) errors.description = true;
+  if(!listing.bedrooms || isNaN(listing.bedrooms) || listing.bedrooms < 0) errors.bedrooms = true;
+  if(!listing.bathrooms || isNaN(listing.bedrooms) || listing.bedrooms < 0) errors.bathrooms = true;
+  if(!listing.rent || isNaN(listing.rent) || listing.rent <= 0) errors.rent = true;
+  if(!listing.address) errors.address = true;
+  if(!listing.city) errors.city = true;
+  if(!listing.state) errors.state = true;
+  if(!listing.zip) errors.zip = true;
+
+  return Object.entries(errors).length === 0 ? false : errors
+}
 
 export default {
   getPublic: async (req, res) => {
@@ -57,7 +72,7 @@ export default {
       if(req.query.str){
         let { data, status } = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${req.query.str}&key=${GOOGLE_API_KEY}`)
         if(status === 200){
-          coords = {lng: data.results[0].geometry.location.lng, lat: data.results[0].geometry.location.lat}
+          coords = data.results[0].geometry.location
           payload.coords = coords;
         } else {
           throw new Error()
@@ -89,7 +104,8 @@ export default {
         if (error) throw new Error(error);
         try {
           let body = JSON.parse(fields.body[0])
-          if(body.address && body.city && body.state && body.zip && body.headline && body.description ) {
+          const errors = checkForErrors(body);
+          if(errors) {
             let str = body.address+", "+body.city+", "+body.state;
             let replaced = str.replace(/\s/g, '+');
             let { data } = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?address=${replaced}&key=${GOOGLE_API_KEY}`)
@@ -98,28 +114,24 @@ export default {
               location: {type: "Point", coordinates: [data.results[0].geometry.location.lng, data.results[0].geometry.location.lat]}
             });
 
-            await newListing.save();
-
             if(files.image){
               const path = files.image[0].path;
               const buffer = fs.readFileSync(path);
               const type = fileType(buffer);
-              const timestamp = Date.now().toString();
-              const data = await uploadFile(buffer, newListing._id, type);
-              Listing.findOneAndUpdate({_id: newListing._id}, { $set: { image: "https://s3.us-east-2.amazonaws.com/cornerstoneapp/"+newListing._id+".png" }}, (error) => {
-                if(error){
-                  console.log(error);
-                }
-                res.send({"id": newListing._id});
-              });
-            } else {
-              res.send({"id": newListing._id});
+              const fileName = "https://s3.us-east-2.amazonaws.com/cornerstoneapp/"+newListing._id+type.ext
+              await uploadFile(buffer, fileName);
+              newListing.image = fileName
             }
+
+            await newListing.save();
+
+            res.send({"id": newListing._id});
+
         } else {
-          res.send({"error": "Invalid"})
+          res.status(400).send({errors})
         }
       } catch (error) {
-        throw new Error(error);
+        res.sendStatus(500)
       }
     })
   }

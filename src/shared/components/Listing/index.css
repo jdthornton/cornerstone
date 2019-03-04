@@ -148,15 +148,14 @@
   .details li {
     margin-top: 0;
   }
-
+  .image {
+    height: 220px;
+  }
 }
 
 @media (min-width:1336px) {
   .container {
     height: inherit;
-  },
-  .image {
-    height: 285px;
   },
   .info {
     padding: 16px 40px;

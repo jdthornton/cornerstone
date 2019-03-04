@@ -18,8 +18,7 @@ class ListingForm extends React.PureComponent {
   handleSubmit = e => {
     e.preventDefault();
     const errors = this.validateFields();
-    const noErrors = Object.keys(errors).every(i => !errors[i])
-    if(noErrors){
+    if(!errors){
       let { address, city, state, zip, bedrooms, bathrooms, rent, deposit, headline, description, file } = this.props;
       let body = {
         address: address,
@@ -39,11 +38,11 @@ class ListingForm extends React.PureComponent {
       data.append('body', JSON.stringify(body));
       if(file){
         data.append('image', file);
-
       }
       this.props.handleSubmit(data)
     } else {
-      console.log("Errors: ", errors);
+      console.log("ERRORS", errors);
+      this.props.displayErrors(errors)
     }
   }
   uploadImage = image => {
@@ -55,17 +54,18 @@ class ListingForm extends React.PureComponent {
   }
   validateFields = () => {
     let { address, city, state, zip, bedrooms, bathrooms, rent, headline, description } = this.props;
-    const errors = {};
-    errors.headline = !headline ? true : false;
-    errors.description = !description ? true : false;
-    errors.bedrooms = !bedrooms || isNaN(bedrooms) || bedrooms <= 0 ? true : false;
-    errors.bathrooms = !bathrooms || isNaN(bathrooms) || bathrooms <= 0 ? true : false;
-    errors.rent = !rent || isNaN(rent) || rent < 0 ? true : false;
-    errors.address = !address ? true : false;
-    errors.city = !city ? true : false;
-    errors.state = !state ? true : false;
-    errors.zip = !zip ? true : false;
-    return errors;
+    let errors = {};
+    if(!headline) errors.headline = true;
+    if(!description) errors.description = true;
+    if(!bedrooms || isNaN(bedrooms) || bedrooms < 0) errors.bedrooms = true;
+    if(!bathrooms || isNaN(bedrooms) || bedrooms < 0) errors.bathrooms = true;
+    if(!rent || isNaN(rent) || rent <= 0) errors.rent = true;
+    if(!address) errors.address = true;
+    if(!city) errors.city = true;
+    if(!state) errors.state = true;
+    if(!zip) errors.zip = true;
+
+    return Object.entries(errors).length === 0 ? false : errors
   }
   render(){
     if(this.props.isProcessing){
@@ -88,26 +88,25 @@ class ListingForm extends React.PureComponent {
                 <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24"><path fill="#d3d3d3" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
               }
             />
-            <Input name="headline" label="headline" value={headline} onChange={this.handleInputChange} />
+            {errors.file && <div className={styles.errors}>Unable to upload file</div>}
+            <Input name="headline" label="headline" hasError={errors.headline} value={headline} onChange={this.handleInputChange} />
             <div className={styles.description}>
               <label for="description">DESCRIPTION</label>
               <textarea style={errors.description ? {borderColor: '#e75b52'} : {}} rows="4" name='description' type='text' value={description} onChange={this.handleInputChange} />
-              {/*errors.description && <div className={styles.errors}>This field is required</div>*/}
+              {errors.description && <div className={styles.errors}>This field is required</div>}
             </div>
           </div>
           <div className={styles.panel}>
-            <Input name="address" label="street address" value={address} onChange={this.handleInputChange} />
+            <Input name="address" label="street address" hasError={errors.address} value={address} onChange={this.handleInputChange} />
             <div className={styles.three}>
-              <Input name="city" label="city" value={city} onChange={this.handleInputChange} />
-              <Input name="state" label="state" value={state} onChange={this.handleInputChange} />
-              <Input name="zip" label="zip" value={zip} onChange={this.handleInputChange} />
+              <Input name="city" label="city" hasError={errors.city} value={city} onChange={this.handleInputChange} />
+              <Input name="state" label="state" hasError={errors.state} value={state} onChange={this.handleInputChange} />
+              <Input name="zip" label="zip" hasError={errors.zip} value={zip} onChange={this.handleInputChange} />
             </div>
-            <Input name="bedrooms" label="bedrooms" value={bedrooms} onChange={this.handleInputChange} />
-            <Input name="bathrooms" label="bathrooms" value={bathrooms} onChange={this.handleInputChange} />
-            <Input name="rent" label="rent" value={rent} onChange={this.handleInputChange} />
-            <Input name="deposit" label="deposit" value={deposit} onChange={this.handleInputChange} />
-            <button style={{display: 'none'}} type="submit" />
-            {/*errors.form && <div className={styles.error}>{errors.form}</div>*/}
+            <Input name="bedrooms" label="bedrooms" hasError={errors.bedrooms} value={bedrooms} onChange={this.handleInputChange} />
+            <Input name="bathrooms" label="bathrooms" hasError={errors.bathrooms} value={bathrooms} onChange={this.handleInputChange} />
+            <Input name="rent" label="rent" hasError={errors.rent} value={rent} onChange={this.handleInputChange} />
+            <Input name="deposit" label="deposit" hasError={errors.deposit} value={deposit} onChange={this.handleInputChange} />
             <div className={styles.btn} onClick={this.handleSubmit}>Create Listing</div>
           </div>
         </form>

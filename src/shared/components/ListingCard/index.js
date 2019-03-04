@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import styles from './index.css';
 
 const ListingCard = ({listing}) => (
-  <Link to={`/cornerstone/listings/${listing._id}`} className={styles.container}>
+  <Link to={`/listings/${listing._id}`} className={styles.container}>
     {listing.image
       ? <div className={styles.image} style={{backgroundImage: `url(${listing.image})`}}></div>
 

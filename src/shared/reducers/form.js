@@ -1,11 +1,12 @@
 export const CLEAR_FORM = 'CLEAR_FORM';
 export const UPDATE_FORM_INPUT = 'UPDATE_FORM_INPUT';
 export const CREATE_LISTING_REQUEST = 'CREATE_LISTING_REQUEST';
+export const DISPLAY_ERRORS = "DISPLAY_ERRORS";
 
-export const formActions = {
-  handleSubmit: payload => ({type: CREATE_LISTING_REQUEST, payload}),
-  handleInputChange: payload => ({type: UPDATE_FORM_INPUT, payload})
-}
+export const handleSubmit = payload => ({type: CREATE_LISTING_REQUEST, payload})
+export const handleInputChange = payload => ({type: UPDATE_FORM_INPUT, payload})
+export const displayErrors = payload => ({type: DISPLAY_ERRORS, payload})
+export const clearForm = () => ({type: CLEAR_FORM})
 
 const initialState = {
   address: '',
@@ -20,7 +21,7 @@ const initialState = {
   description: '',
   image: null,
   file: null,
-  errors: '',
+  errors: {},
   isProcessing: false
 };
 
@@ -35,6 +36,11 @@ const reducer = (previousState = initialState, { type, payload }) => {
           return {
             ...previousState,
             isProcessing: true
+          }
+        case DISPLAY_ERRORS:
+          return {
+            ...previousState,
+            errors: payload
           }
         case CLEAR_FORM:
           return initialState

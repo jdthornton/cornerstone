@@ -13,7 +13,9 @@ import {
   LISTING_REQUEST__SUCCEEDED,
 } from './reducers/listing';
 import {
-  CREATE_LISTING_REQUEST
+  CREATE_LISTING_REQUEST,
+  displayErrors,
+  clearForm
 } from './reducers/form';
 
 const listingsURL = API_URL+"/listings";
@@ -33,25 +35,32 @@ const findDistance = (lng1, lat1, lng2, lat2) => {
 
 const getRequest = url =>
     fetch(listingsURL+url)
+    .then(checkStatus)
 
 const postRequest = body =>
     fetch(listingsURL, {
       method: 'post',
       body: body
-    }).then(response => response.json())
+    }).then(checkStatus)
 
+function checkStatus(response) {
+    if (response.status >= 200 && response.status < 300) {
+      return response.json();
+    } else {
+      if(response.ok){
+        let { errors } = response.json()
+        return { errors }
+      }
+      throw new Error(response.status);
+    }
+  }
 
 function* listingsRequestSaga(action){
   let route = yield select(getRoute)
   if(route === '/') yield put(push("/listings"))
   try {
-    let response = yield call(getRequest, `?str=${action.payload}`);
-    if(response.status >= 200 && response.status < 300){
-      let payload = yield response.json();
-      yield put({type: SEARCH_LISTINGS_REQUEST__SUCCEEDED, payload})
-    } else {
-      throw response
-    }
+    let payload = yield call(getRequest, `?str=${action.payload}`);
+    yield put({type: SEARCH_LISTINGS_REQUEST__SUCCEEDED, payload})
   } catch (error) {
     yield put({type: SEARCH_LISTINGS_REQUEST__FAILED, payload: error})
   }
@@ -63,13 +72,8 @@ function* nearbyListingsSaga({payload}){
   if(distance >= 10){
     yield put({type: UPDATE_CENTER, payload})
     try {
-      let response = yield call(getRequest, `?lng=${payload.lng}&lat=${payload.lat}`);
-      if(response.status >= 200 && response.status < 300){
-        let listings = yield response.json();
-        yield put({type: SEARCH_LISTINGS_REQUEST__SUCCEEDED, payload: listings})
-      } else {
-        throw response
-      }
+      let payload = yield call(getRequest, `?lng=${payload.lng}&lat=${payload.lat}`);
+      yield put({type: SEARCH_LISTINGS_REQUEST__SUCCEEDED, payload})
     } catch (error) {
       console.log("ERROR", error);
     }
@@ -78,21 +82,25 @@ function* nearbyListingsSaga({payload}){
 
 function* listingRequestSaga(action){
   try {
-    let response = yield call(getRequest, "/"+action.payload)
-    if(response.status >= 200 && response.status < 300){
-      let { payload } = yield response.json();
-      yield put({type: LISTING_REQUEST__SUCCEEDED, payload})
-    } else {
-      throw response
-    }
+    let { payload } = yield call(getRequest, "/"+action.payload)
+    yield put({type: LISTING_REQUEST__SUCCEEDED, payload})
   } catch (error) {
     console.log("ERROR", error);
   }
 }
 
 function* createListingSaga({payload}){
-  let { id } = yield call(postRequest, payload)
-  yield put(push('/listings/'+id))
+  try {
+    let { id, errors } = yield call(postRequest, payload)
+    if(errors){
+      yield put(displayErrors(errors))
+    } else {
+      yield put(push('/listings/'+id))
+      yield put(clearForm())
+    }
+  } catch (e) {
+    console.log("ERROR", error);
+  }
 }
 
 function* searchSaga(){
